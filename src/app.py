@@ -78,6 +78,67 @@ activities = {
 }
 
 
+def reset_activities():
+    """Reset activities to initial state (for testing)"""
+    global activities
+    activities = {
+        "Chess Club": {
+            "description": "Learn strategies and compete in chess tournaments",
+            "schedule": "Fridays, 3:30 PM - 5:00 PM",
+            "max_participants": 12,
+            "participants": ["michael@mergington.edu", "daniel@mergington.edu"]
+        },
+        "Programming Class": {
+            "description": "Learn programming fundamentals and build software projects",
+            "schedule": "Tuesdays and Thursdays, 3:30 PM - 4:30 PM",
+            "max_participants": 20,
+            "participants": ["emma@mergington.edu", "sophia@mergington.edu"]
+        },
+        "Gym Class": {
+            "description": "Physical education and sports activities",
+            "schedule": "Mondays, Wednesdays, Fridays, 2:00 PM - 3:00 PM",
+            "max_participants": 30,
+            "participants": ["john@mergington.edu", "olivia@mergington.edu"]
+        },
+        "Basketball Team": {
+            "description": "Competitive basketball training and game participation",
+            "schedule": "Mondays and Thursdays, 4:00 PM - 5:30 PM",
+            "max_participants": 15,
+            "participants": ["alex@mergington.edu"]
+        },
+        "Tennis Club": {
+            "description": "Tennis practice and tournament preparation",
+            "schedule": "Wednesdays and Saturdays, 3:00 PM - 4:30 PM",
+            "max_participants": 10,
+            "participants": []
+        },
+        "Digital Art": {
+            "description": "Learn digital design, photo editing, and graphic creation",
+            "schedule": "Tuesdays, 3:30 PM - 5:00 PM",
+            "max_participants": 18,
+            "participants": ["ava@mergington.edu"]
+        },
+        "Drama Club": {
+            "description": "Theater performance, script reading, and stage production",
+            "schedule": "Thursdays, 4:00 PM - 5:30 PM",
+            "max_participants": 25,
+            "participants": ["lucas@mergington.edu", "noah@mergington.edu"]
+        },
+        "Debate Team": {
+            "description": "Competitive debate and public speaking skills",
+            "schedule": "Mondays and Wednesdays, 3:30 PM - 3:45 PM",
+            "max_participants": 16,
+            "participants": ["isabella@mergington.edu"]
+        },
+        "Science Club": {
+            "description": "Hands-on experiments, research projects, and STEM exploration",
+            "schedule": "Fridays, 3:30 PM - 4:45 PM",
+            "max_participants": 22,
+            "participants": ["james@mergington.edu", "mia@mergington.edu"]
+        }
+    }
+
+
 @app.get("/")
 def root():
     return RedirectResponse(url="/static/index.html")
@@ -105,3 +166,22 @@ def signup_for_activity(activity_name: str, email: str):
     # Add student
     activity["participants"].append(email)
     return {"message": f"Signed up {email} for {activity_name}"}
+
+
+@app.delete("/activities/{activity_name}/unregister")
+def unregister_from_activity(activity_name: str, email: str):
+    """Unregister a student from an activity"""
+    # Validate activity exists
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    # Get the specific activity
+    activity = activities[activity_name]
+
+    # Validate student is signed up
+    if email not in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student not signed up for this activity")
+    
+    # Remove student
+    activity["participants"].remove(email)
+    return {"message": f"Unregistered {email} from {activity_name}"}
